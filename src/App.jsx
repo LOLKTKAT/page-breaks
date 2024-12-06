@@ -1,17 +1,19 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 
+const PAGE_HEIGHT = 1123;
 function App() {
   const [count, setCount] = useState(0); // Proper state initialization
+  const [childrenCount, setChildrenCount] = useState(0); // State to track changes
 
   useEffect(() => {
     const parent = document.getElementById("perent");
     const printArea = document.getElementById("print-area");
-    let children = parent.children;
 
     if (parent && printArea) {
-      const maxWrapperHeight = 200; // Adjust this to set the maximum height per wrapper
+      const maxWrapperHeight = PAGE_HEIGHT; // Adjust this to set the maximum height per wrapper
       let currentHeight = 0;
+      printArea.innerHTML = ""; // Clear previous content
       let wrapper = document.createElement("div");
       wrapper.className = "wrapper";
 
@@ -44,6 +46,21 @@ function App() {
         printArea.appendChild(wrapper);
       }
     }
+  }, [childrenCount]); // Trigger the effect when childrenCount changes
+
+  // Observe changes in the parent element's children
+  useEffect(() => {
+    const parent = document.getElementById("perent");
+
+    if (parent) {
+      const observer = new MutationObserver(() => {
+        setChildrenCount(parent.children.length);
+      });
+
+      observer.observe(parent, { childList: true });
+
+      return () => observer.disconnect(); // Cleanup observer on unmount
+    }
   }, []);
 
   return (
@@ -55,7 +72,9 @@ function App() {
         <div className="content">content </div>
         <div className="content">content </div>
         {Array.from({ length: count }).map((_, index) => (
-          <div key={index}>This is item {index + 1}</div>
+          <div className="" key={index}>
+            This is item {index + 1}
+          </div>
         ))}
       </div>
       <div id="print-area" className="">
